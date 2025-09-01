@@ -1,7 +1,10 @@
+//app/layout.tsx
+
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter, Montserrat } from "next/font/google"
 import "./globals.css"
+import Providers from "@/lib/providers";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -30,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${montserrat.variable} antialiased`}>
       <body className="font-sans">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

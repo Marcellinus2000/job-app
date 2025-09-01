@@ -1,4 +1,4 @@
-import RegisterForm from "@/components/auth/register-form"
+import RegisterForm from "@/components/auth/new-register-form"
 import { BackButton } from "@/components/ui/back-button"
 
 export default function RegisterPage() {
