@@ -9,7 +9,6 @@ declare module "next-auth" {
       name: string
       role: Role
       verified: boolean
-      isFirstTime: boolean
       phone?: string
     }
     accessToken: string
@@ -22,7 +21,6 @@ declare module "next-auth/jwt" {
   interface JWT {
     role: Role
     verified: boolean
-    isFirstTime: boolean
     accessToken: string
     phone?: string
   }

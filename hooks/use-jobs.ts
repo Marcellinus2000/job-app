@@ -1,10 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  getRequestHandler,
-  postRequestHandler,
-  putRequestHandler,
-  deleteRequestHandler,
-} from "@/lib/apiClient";
+import { apiClient, apiFormClient } from "@/lib/apiClient";
 import { Job, SingleJobResponse, AppliedJobResponse } from "@/types/job";
 
 /* ---------------------- USER HOOKS ---------------------- */
@@ -13,7 +8,7 @@ import { Job, SingleJobResponse, AppliedJobResponse } from "@/types/job";
 export function usePublishedJobs() {
   return useQuery<Job[]>({
     queryKey: ["jobs", "published"],
-    queryFn: () => getRequestHandler<Job[]>("/jobs/published"),
+    queryFn: () => apiClient<Job[]>("/jobs/published"),
     staleTime: 1000 * 60, // cache for 1 min
   });
 }
@@ -22,7 +17,7 @@ export function usePublishedJobs() {
 export function useSingleJob(jobId: number) {
   return useQuery<SingleJobResponse>({
     queryKey: ["jobs", jobId],
-    queryFn: () => getRequestHandler<SingleJobResponse>(`/jobs/${jobId}`),
+    queryFn: () => apiClient<SingleJobResponse>(`/jobs/${jobId}`),
     enabled: !!jobId,
   });
 }
@@ -31,7 +26,7 @@ export function useSingleJob(jobId: number) {
 export function useAppliedJobs() {
   return useQuery<AppliedJobResponse[]>({
     queryKey: ["jobs", "applied"],
-    queryFn: () => getRequestHandler<AppliedJobResponse[]>("/jobs/applied"),
+    queryFn: () => apiClient<AppliedJobResponse[]>("/jobs/applied"),
   });
 }
 
@@ -40,7 +35,7 @@ export function useApplyForJob() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ jobId, formData }: { jobId: number; formData: FormData }) =>
-      postRequestHandler(`/jobs/${jobId}/apply`, formData, true),
+      apiFormClient(`/jobs/${jobId}/apply`, { method: "POST", data: formData }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["jobs", "applied"] });
     },
@@ -53,7 +48,7 @@ export function useApplyForJob() {
 export function useJobsAdmin() {
   return useQuery<Job[]>({
     queryKey: ["jobs", "admin"],
-    queryFn: () => getRequestHandler<Job[]>("/jobs"),
+    queryFn: () => apiClient<Job[]>("/jobs"),
   });
 }
 
@@ -61,7 +56,7 @@ export function useJobsAdmin() {
 export function useCreateJob() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Partial<Job>) => postRequestHandler<Job>("/jobs", data),
+    mutationFn: (data: Partial<Job>) => apiClient<Job>("/jobs", { method: "POST", data }),
     onSuccess: (newJob) => {
       // Optimistically update cache
       qc.setQueryData<Job[]>(["jobs", "admin"], (old = []) => [newJob, ...old]);
@@ -74,7 +69,7 @@ export function useUpdateJob(id: number) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Partial<Job>) =>
-      putRequestHandler<Job>(`/jobs/${id}`, data),
+      apiClient<Job>(`/jobs/${id}`, { method: "PUT", data }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["jobs", "admin"] });
       qc.invalidateQueries({ queryKey: ["jobs", id] }); // refresh job detail
@@ -86,7 +81,7 @@ export function useUpdateJob(id: number) {
 export function useDeleteJob() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) => deleteRequestHandler(`/jobs/${id}`),
+    mutationFn: (id: number) => apiClient(`/jobs/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["jobs", "admin"] });
     },

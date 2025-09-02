@@ -16,6 +16,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { Briefcase, Bell, User, Settings, LogOut, FileText, Search } from "lucide-react"
+import { signOut } from "next-auth/react"
 
 const navigationItems = [
   {
@@ -145,7 +146,7 @@ export function UserNavbar() {
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/login" })}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Log out
                 </DropdownMenuItem>

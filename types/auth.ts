@@ -62,8 +62,12 @@ export interface AuthUser {
   name: string
   role: Role
   verified: boolean
-  isFirstTime: boolean
   token: string
   phone?: string
   profile?: Profile
+}
+
+export interface ResetPasswordFields {
+  old_password: string;
+  new_password: string;
 }

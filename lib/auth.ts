@@ -1,6 +1,6 @@
 import type { AuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { postRequestHandler } from "@/lib/apiClient"
+import { apiClient } from "@/lib/apiClient"
 import type { LoginResponse, AuthUser } from "@/types/auth"
 
 export const authOptions: AuthOptions = {
@@ -17,14 +17,17 @@ export const authOptions: AuthOptions = {
         }
 
         try {
-          console.log("[v0] Attempting login for:", credentials.email)
+          console.log("Attempting login for:", credentials.email)
 
-          const response: LoginResponse = await postRequestHandler("/auth/login", {
-            email: credentials.email,
-            password: credentials.password,
+          const response: LoginResponse = await apiClient("/auth/login", {
+            method: "POST",
+            data: {
+              email: credentials.email,
+              password: credentials.password,
+            },
           })
 
-          console.log("[v0] Login API response:", response)
+          console.log("Login API response:", response)
 
           if (response && response.user) {
             return {
@@ -39,7 +42,6 @@ export const authOptions: AuthOptions = {
                 id: response.user.role.id,
               },
               verified: response.user.verified,
-              isFirstTime: !response.user.verified,
               token: response.token,
               phone: response.user.phone,
               profile: response.user.profile,
@@ -48,7 +50,7 @@ export const authOptions: AuthOptions = {
 
           return null
         } catch (error: any) {
-          console.log("[v0] Login error:", error)
+          console.log("Login error:", error)
           throw new Error(error.message || "Invalid credentials")
         }
       },
@@ -59,7 +61,6 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.role = user.role
         token.verified = user.verified
-        token.isFirstTime = user.isFirstTime
         token.accessToken = user.token
         token.phone = user.phone
       }
@@ -70,14 +71,13 @@ export const authOptions: AuthOptions = {
         session.user.id = token.sub!
         session.user.role = token.role
         session.user.verified = token.verified
-        session.user.isFirstTime = token.isFirstTime
         session.user.phone = token.phone
         session.accessToken = token.accessToken
       }
       return session
     },
     async redirect({ url, baseUrl }) {
-      console.log("[v0] Redirect callback - url:", url, "baseUrl:", baseUrl)
+      console.log("Redirect callback - url:", url, "baseUrl:", baseUrl)
 
       if (url.startsWith("/")) {
         return `${baseUrl}${url}`

@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
 
     const { pathname } = request.nextUrl
 
-    console.log("[v0] Middleware - pathname:", pathname, "token:", !!token)
+    console.log("Middleware - pathname:", pathname, "token:", !!token)
 
     const publicRoutes = ["/", "/login", "/register", "/forgot-password"]
     const isPublicRoute = publicRoutes.includes(pathname)
@@ -29,7 +29,7 @@ export async function middleware(request: NextRequest) {
 
     // Redirect to login if no token
     if (!token) {
-      console.log("[v0] No token, redirecting to login")
+      console.log("No token, redirecting to login")
       return NextResponse.redirect(new URL("/login", request.url))
     }
 
@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
       const userRole = token.role as Role
       const isVerified = token.verified as boolean
 
-      console.log("[v0] User role:", userRole, "verified:", isVerified)
+      console.log("User role:", userRole, "verified:", isVerified)
 
       // Handle first-time users (not verified)
       if (!isVerified) {

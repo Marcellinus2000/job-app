@@ -3,7 +3,7 @@ import { useState } from "react"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useRoles } from "@/hooks/use-roles"
-import { postRequestHandler } from "@/lib/apiClient"
+import { apiClient } from "@/lib/apiClient"
 import type { RegisterFormFields, RegisterUserRequest } from "@/types/auth"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -46,7 +46,7 @@ export default function NewRegisterForm() {
 
   // TanStack Query mutation for registration
   const { mutate, isPending: isLoading } = useMutation({
-    mutationFn: (payload: RegisterUserRequest) => postRequestHandler("/users", payload),
+    mutationFn: (payload: RegisterUserRequest) => apiClient("/users", { method: "POST", data: payload }),
     onSuccess: () => {
       form.reset()
       toast({

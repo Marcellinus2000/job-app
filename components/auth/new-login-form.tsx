@@ -78,7 +78,7 @@ export default function NewLoginForm() {
 
         if (session?.user) {
           const userRole = session.user.role?.name || session.user.role;
-          const firstTime = session.user.isFirstTime;
+          const isVerified = session.user.verified;
           const roleId = session.user.role?.id;
 
           console.log(
@@ -86,20 +86,30 @@ export default function NewLoginForm() {
             userRole,
             "roleId:",
             roleId,
-            "firstTime:",
-            firstTime
+            "verified:",
+            isVerified
           );
 
+          // First-time login: not verified
+          if (!isVerified) {
+            if (userRole === "user") {
+              router.push("/profile");
+            } else if (userRole === "hr") {
+              router.push("/admin/profile"); // HR must reset password here
+            } else {
+              // super admin
+              router.push("/admin/dashboard");
+            }
+            return;
+          }
+
           if (userRole !== "user") {
-            console.log("Redirecting to admin dashboard");
             router.push("/admin/dashboard");
           } else {
-            console.log("Redirecting to dashboard");
             router.push("/dashboard");
           }
         } else {
           // Fallback routing if no session user
-          console.log("No session user, redirecting to dashboard");
           router.push("/dashboard");
         }
       }
