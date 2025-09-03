@@ -1,6 +1,6 @@
 //app/admin/layout.tsx
 import type React from "react";
-import { AdminLayoutWrapper } from "@/components/Admin/admin-layout-wrapper";
+import { AdminLayoutWrapper } from "@/components/admin/admin-layout-wrapper";
 
 export default function AdminLayout({
   children,

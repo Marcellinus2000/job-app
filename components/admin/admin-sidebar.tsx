@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { LayoutDashboard, Users, Briefcase, FileText, Settings, LogOut, BarChart3 } from "lucide-react"
-import { signOut } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 
 const sidebarItems = [
 	{
@@ -44,6 +44,11 @@ const sidebarItems = [
 
 export function AdminSidebar() {
 	const pathname = usePathname()
+	const { data: session } = useSession()
+
+	const userName = session?.user?.name || "Admin"
+	const userEmail = session?.user?.email || "admin@jobhub.com"
+	const avatarFallback = userName.charAt(0).toUpperCase() || userEmail.charAt(0).toUpperCase()
 
 	return (
 		<div className="flex h-full w-64 flex-col bg-sidebar border-r border-sidebar-border">
@@ -103,15 +108,15 @@ export function AdminSidebar() {
 				<div className="flex items-center space-x-3 mb-3">
 					<div className="h-8 w-8 rounded-full bg-sidebar-accent flex items-center justify-center">
 						<span className="text-sm font-medium text-sidebar-accent-foreground">
-							A
+							{avatarFallback}
 						</span>
 					</div>
 					<div className="flex-1 min-w-0">
 						<p className="text-sm font-medium text-sidebar-foreground truncate">
-							Admin User
+							{userName}
 						</p>
 						<p className="text-xs text-muted-foreground truncate">
-							admin@jobhub.com
+							{userEmail}
 						</p>
 					</div>
 				</div>

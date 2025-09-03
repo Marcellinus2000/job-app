@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useQuery } from "@tanstack/react-query";
 import ResetPasswordDialog from "@/components/admin/ResetPasswordDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,23 +9,18 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
-import { Edit, Upload, Mail, Phone, MapPin } from "lucide-react";
-
-function fetchAdminProfile(token: string) {
-  return fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/profile`, {
-    headers: { Authorization: `Bearer ${token}` },
-  }).then((res) => res.json());
-}
+import { Edit, Upload, Mail, Phone } from "lucide-react";
 
 export default function AdminProfileClient() {
   const { data: session } = useSession();
   const [showReset, setShowReset] = useState(false);
 
-  const { data: profile } = useQuery({
-    queryKey: ["admin-profile"],
-    queryFn: () => fetchAdminProfile(session?.accessToken || ""),
-    enabled: !!session?.accessToken,
-  });
+  const profile = {
+    name: session?.user?.name,
+    role: session?.user?.role?.name,
+    email: session?.user?.email,
+    phone: session?.user?.phone,
+  };
 
   useEffect(() => {
     if (session?.user?.role?.name === "hr" && session.user.verified === false) {
@@ -56,20 +50,16 @@ export default function AdminProfileClient() {
               <AvatarFallback className="text-lg">AD</AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h2 className="text-2xl font-bold">{profile?.name}</h2>
-              <p className="capitalize text-muted-foreground">{profile?.role}</p>
+              <h2 className="text-2xl font-bold">{profile.name}</h2>
+              <p className="text-muted-foreground">{profile.role}</p>
               <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
                 <div className="flex items-center">
-                  <MapPin className="h-4 w-4 mr-1" />
-                  {profile?.location}
-                </div>
-                <div className="flex items-center">
                   <Mail className="h-4 w-4 mr-1" />
-                  {profile?.email}
+                  {profile.email}
                 </div>
                 <div className="flex items-center">
                   <Phone className="h-4 w-4 mr-1" />
-                  {profile?.phone}
+                  {profile.phone}
                 </div>
               </div>
               <div className="flex items-center space-x-2 mt-4">
@@ -87,7 +77,7 @@ export default function AdminProfileClient() {
           <CardTitle>About</CardTitle>
         </CardHeader>
         <CardContent>
-          <Textarea placeholder="Describe your role, experience, and responsibilities as an admin or HR..." defaultValue={profile?.about} />
+          <Textarea placeholder="Describe your role, experience, and responsibilities as an admin or HR..." disabled />
         </CardContent>
       </Card>
       <Card>
@@ -98,11 +88,11 @@ export default function AdminProfileClient() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="jane.admin@company.com" defaultValue={profile?.email} />
+              <Input id="email" type="email" placeholder="jane.admin@company.com" defaultValue={profile.email} />
             </div>
             <div>
               <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" type="tel" placeholder="+233 501 388 841" defaultValue={profile?.phone} />
+              <Input id="phone" type="tel" placeholder="+233 501 388 841" defaultValue={profile.phone} />
             </div>
           </div>
         </CardContent>

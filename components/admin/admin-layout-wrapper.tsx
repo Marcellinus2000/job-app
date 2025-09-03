@@ -1,4 +1,3 @@
-//components/Admin/admin-layout-wrapper.tsx
 "use client"
 
 import type React from "react"
@@ -17,7 +16,7 @@ export function AdminLayoutWrapper({ children }: AdminLayoutWrapperProps) {
 
   return (
     <div className="flex h-screen bg-background">
-      {/* Sidebar */}
+      {/* Sidebar */}           
       <div
         className={cn(
           "fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0",
