@@ -1,5 +1,5 @@
 import type { AuthUser } from "./auth"
-import { Role } from "./role"
+import type { Role } from "./role"
 
 declare module "next-auth" {
   interface Session {
@@ -10,6 +10,22 @@ declare module "next-auth" {
       role: Role
       verified: boolean
       phone?: string
+      profile?: {
+        firstname?: string
+        lastname?: string
+        gender?: string
+        date_of_birth?: string
+        picture_url?: string
+        gps_address?: string
+        portfolio_url?: string
+        resume?: string
+        tertiary_cert?: string
+        transcript?: string
+        wassce_cert?: string
+        bece_cert?: string
+        notice_period?: string
+        languages?: string[]
+      }
     }
     accessToken: string
   }
@@ -23,5 +39,21 @@ declare module "next-auth/jwt" {
     verified: boolean
     accessToken: string
     phone?: string
+    profile?: {
+      firstname?: string
+      lastname?: string
+      gender?: string
+      date_of_birth?: string
+      picture_url?: string
+      gps_address?: string
+      portfolio_url?: string
+      resume?: string
+      tertiary_cert?: string
+      transcript?: string
+      wassce_cert?: string
+      bece_cert?: string
+      notice_period?: string
+      languages?: string[]
+    }
   }
 }

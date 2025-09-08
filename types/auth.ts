@@ -24,20 +24,20 @@ export interface Role {
 }
 
 export interface Profile {
-  firstname: string | null
-  lastname: string | null
-  gender: string | null
-  date_of_birth: string | null
-  picture_url: string | null
-  gps_address: string | null
-  portfolio_url: string | null
-  resume: string | null
-  tertiary_cert: string | null
-  transcript: string | null
-  wassce_cert: string | null
-  bece_cert: string | null
-  notice_period: string | null
-  languages: string[]
+  firstname?: string
+  lastname?: string
+  gender?: string
+  date_of_birth?: string
+  picture_url?: string
+  gps_address?: string
+  portfolio_url?: string
+  resume?: string
+  tertiary_cert?: string
+  transcript?: string
+  wassce_cert?: string
+  bece_cert?: string
+  notice_period?: string
+  languages?: string[]
 }
 
 export interface BackendUser {

@@ -63,6 +63,7 @@ export const authOptions: AuthOptions = {
         token.verified = user.verified
         token.accessToken = user.token
         token.phone = user.phone
+        token.profile = user.profile
       }
       return token
     },
@@ -72,6 +73,7 @@ export const authOptions: AuthOptions = {
         session.user.role = token.role
         session.user.verified = token.verified
         session.user.phone = token.phone
+        session.user.profile = token.profile
         session.accessToken = token.accessToken
       }
       return session

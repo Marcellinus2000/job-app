@@ -1,5 +1,3 @@
-//app/(user)/layout.tsx
-
 import type React from "react"
 import { UserNavbar } from "@/components/user-navbar"
 

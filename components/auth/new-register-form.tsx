@@ -25,7 +25,6 @@ export default function NewRegisterForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  // Console log the roles when available
   if (roles) {
     console.log("Fetched roles:", roles)
   }
