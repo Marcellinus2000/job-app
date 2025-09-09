@@ -13,9 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import {
-  Breadcrumb,
-} from "@/components/ui/breadcrumb"
+import { Breadcrumb } from "@/components/ui/breadcrumb"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { ProfilePictureUpload } from "@/components/user/profile-picture-upload"
 import { FileUploadField } from "@/components/user/file-upload-field"
@@ -98,7 +96,7 @@ export default function ProfilePage() {
       gps_address: profile?.gps_address || "",
       portfolio_url: profile?.portfolio_url || "",
       notice_period: profile?.notice_period || "",
-      languages: [...new Set(languages)], // Deduplicate
+      languages: [...new Set(languages)],
       gender: profile?.gender || "",
       date_of_birth: profile?.date_of_birth || "",
       files: {
@@ -132,29 +130,31 @@ export default function ProfilePage() {
     try {
       const { files, ...profileData } = data
 
-      await updateProfileMutation.mutateAsync(profileData)
+      console.log("Starting profile update with data:", profileData)
 
+      // 1. Update JSON profile
+      const updatedUser = await updateProfileMutation.mutateAsync(profileData)
+      console.log("Profile update response:", updatedUser)
+
+      // 2. Update file uploads (if any)
       const hasFiles = Object.values(files).some((file) => file instanceof File)
       if (hasFiles) {
+        console.log("Updating files...")
         await updateFilesMutation.mutateAsync(files)
       }
 
-      if (session) {
-        await updateSession({
-          ...session,
-          user: {
-            ...session.user,
-            verified: true,
-            profile: {
-              ...session.user.profile,
-              ...profileData,
-            },
-          },
-        })
-      }
+      // 3. Simple session refresh - let JWT callback handle the update
+      console.log("Triggering session update...")
+      await updateSession()
+      console.log("Session update completed")
+
+      // 4. Reset form with fresh values
+      form.reset(getDefaultValues())
 
       setIsEditing(false)
       setActiveTab("overview")
+
+      console.log("Profile update process completed successfully")
     } catch (error) {
       console.error("Profile update error:", error)
     }
@@ -286,7 +286,11 @@ export default function ProfilePage() {
             <CardContent className="p-6">
               <div className="flex items-start space-x-6">
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src={profile?.picture_url || "/placeholder.svg?height=96&width=96"} alt="Profile" />
+                  <AvatarImage
+                    src={profile?.picture_url || "/placeholder.svg?height=96&width=96"}
+                    alt="Profile"
+                    style={{ objectFit: "cover" }}
+                  />
                   <AvatarFallback className="text-lg">
                     {fullName
                       .split(" ")
@@ -339,13 +343,6 @@ export default function ProfilePage() {
               <p className="text-muted-foreground leading-relaxed">
                 Welcome to your profile! Complete your information in the Settings tab to help employers learn more
                 about you.
-                {profile?.languages && profile.languages.length > 0 && (
-                  <span>
-                    {" "}
-                    I speak{" "}
-                    {profile.languages.map((lang: any) => (typeof lang === "string" ? lang : lang.name)).join(", ")}.
-                  </span>
-                )}
               </p>
             </CardContent>
           </Card>
