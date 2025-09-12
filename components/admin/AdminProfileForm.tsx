@@ -1,91 +1,102 @@
 "use client";
-import { useState } from "react";
-import { useSession } from "next-auth/react";
-import ResetPasswordDialog from "@/components/admin/ResetPasswordDialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Breadcrumb } from "@/components/ui/breadcrumb";
-import { Edit, Upload, Mail, Phone, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { useUpdateProfile } from "@/hooks/use-user-profile";
+import { useSession } from "next-auth/react";
+import { X, Save } from "lucide-react";
 
-export default function AdminProfileForm() {
-  const { data: session } = useSession();
-  const [showReset, setShowReset] = useState(false);
-  const profile = session?.user;
+interface Props {
+  profile: any;
+  onCancel: () => void;
+}
 
-  const handleOpenReset = () => setShowReset(true);
+export default function AdminProfileForm({ profile, onCancel }: Props) {
+  const { update: updateSession } = useSession();
+  const updateProfileMutation = useUpdateProfile();
+
+  const form = useForm({
+    defaultValues: {
+      firstname: profile?.profile?.firstname || "",
+      lastname: profile?.profile?.lastname || "",
+      phone: profile?.phone || "",
+      gps_address: profile?.profile?.gps_address || "",
+      gender: profile?.profile?.gender || "",
+      date_of_birth: profile?.profile?.date_of_birth || "",
+    },
+    mode: "onChange",
+  });
+
+  const handleSubmit = async (data: any) => {
+    try {
+      await updateProfileMutation.mutateAsync(data);
+      await updateSession();
+      onCancel();
+    } catch (error) {
+      console.error("Update failed", error);
+    }
+  };
+
+  const isUpdating = updateProfileMutation.isPending;
 
   return (
-    <div className="space-y-6">
-      <ResetPasswordDialog open={showReset} onOpenChange={setShowReset} />
-      <Breadcrumb items={[{ label: "Admin Dashboard", href: "/admin/dashboard" }, { label: "Profile" }]} />
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold font-montserrat text-foreground">Admin Profile</h1>
-          <p className="text-muted-foreground">Complete or update your admin/HR profile</p>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2">
+          <FormField name="firstname" control={form.control} render={({ field }) => (
+            <FormItem>
+              <FormLabel>First Name</FormLabel>
+              <FormControl><Input {...field} /></FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
+          <FormField name="lastname" control={form.control} render={({ field }) => (
+            <FormItem>
+              <FormLabel>Last Name</FormLabel>
+              <FormControl><Input {...field} /></FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
+          <FormField name="phone" control={form.control} render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone</FormLabel>
+              <FormControl><Input {...field} /></FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
+          <FormField name="gps_address" control={form.control} render={({ field }) => (
+            <FormItem>
+              <FormLabel>GPS Address</FormLabel>
+              <FormControl><Input {...field} /></FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
+          <FormField name="gender" control={form.control} render={({ field }) => (
+            <FormItem>
+              <FormLabel>Gender</FormLabel>
+              <FormControl><Input {...field} /></FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
+          <FormField name="date_of_birth" control={form.control} render={({ field }) => (
+            <FormItem>
+              <FormLabel>Date of Birth</FormLabel>
+              <FormControl><Input type="date" {...field} /></FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
         </div>
-        <div className="flex gap-2">
-          <Button onClick={handleOpenReset} variant="outline">
-            Change Password
+
+        <div className="flex gap-2 justify-end">
+          <Button type="button" variant="outline" onClick={onCancel} disabled={isUpdating}>
+            <X className="mr-2 h-4 w-4" /> Cancel
           </Button>
-          <Button>
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Profile
+          <Button type="submit" disabled={!form.formState.isValid || isUpdating}>
+            <Save className="mr-2 h-4 w-4" /> {isUpdating ? "Saving..." : "Save Changes"}
           </Button>
         </div>
-      </div>
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-start space-x-6">
-            <Avatar className="h-24 w-24">
-              <AvatarImage src="/professional-admin-avatar.png" alt="Admin Profile" />
-              <AvatarFallback className="text-lg">AD</AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold">{profile?.name}</h2>
-              <p className="text-lg text-muted-foreground">{profile?.role?.name}</p>
-              <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
-                
-                <div className="flex items-center">
-                  <Mail className="h-4 w-4 mr-1" />
-                  {profile?.email}
-                </div>
-                <div className="flex items-center">
-                  <Phone className="h-4 w-4 mr-1" />
-                  {profile?.phone}
-                </div>
-              </div>
-              <div className="flex items-center space-x-2 mt-4">
-                <Button size="sm">
-                  <Upload className="mr-2 h-4 w-4" />
-                  Update Photo
-                </Button>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Contact Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="e@exm.com" defaultValue={profile?.email} />
-            </div>
-            <div>
-              <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" type="tel" placeholder="+233 501 388 841" defaultValue={profile?.phone} />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+      </form>
+    </Form>
   );
 }

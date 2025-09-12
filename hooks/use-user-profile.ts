@@ -81,7 +81,7 @@ export function useUpdateProfileFiles() {
   const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: (files: UserProfileFilesUpdate) => {
+    mutationFn: (files: Partial<UserProfileFilesUpdate>) => {
       const formData = new FormData()
       Object.entries(files).forEach(([key, value]) => {
         if (value instanceof File) {

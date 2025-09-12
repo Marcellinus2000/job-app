@@ -1,22 +1,53 @@
-"use client"
+// import UserProfileClient from "@/components/user/UserProfileClient";
 
-import { useState, useEffect } from "react"
-import { useForm } from "react-hook-form"
-import { useSession } from "next-auth/react"
-import { useUserData, useUpdateProfile, useUpdateProfileFiles } from "@/hooks/use-user-profile"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Breadcrumb } from "@/components/ui/breadcrumb"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { ProfilePictureUpload } from "@/components/user/profile-picture-upload"
-import { FileUploadField } from "@/components/user/file-upload-field"
+// export default function ProfilePage() {
+//   return <UserProfileClient />;
+// }
+
+
+
+"use client";
+
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { useSession } from "next-auth/react";
+import {
+  useUserData,
+  useUpdateProfile,
+  useUpdateProfileFiles,
+} from "@/hooks/use-user-profile";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { ProfilePictureUpload } from "@/components/user/profile-picture-upload";
+import { FileUploadField } from "@/components/user/file-upload-field";
 import {
   User,
   Mail,
@@ -32,27 +63,39 @@ import {
   Save,
   X,
   AlertCircle,
-} from "lucide-react"
-import type { UserProfileJsonUpdate, UserProfileFilesUpdate } from "@/types/user"
+} from "lucide-react";
+import type {
+  UserProfileJsonUpdate,
+  UserProfileFilesUpdate,
+} from "@/types/user";
 
-const languageOptions = ["English", "Spanish", "Ga", "Fante", "Others"]
-const noticePeriodOptions = ["Immediate", "1 Week", "2 Weeks", "1 Month", "Some months"]
+const languageOptions = ["English", "Spanish", "Ga", "Fante", "Others"];
+const noticePeriodOptions = [
+  "Immediate",
+  "1 Week",
+  "2 Weeks",
+  "1 Month",
+  "Some months",
+];
 
 interface ProfileFormData extends UserProfileJsonUpdate {
-  files: UserProfileFilesUpdate
+  files: UserProfileFilesUpdate;
 }
 
 export default function ProfilePage() {
-  const { data: session, update: updateSession } = useSession()
-  const { user, sessionUser, isLoading, error, isFirstTimeUser } = useUserData()
-  const updateProfileMutation = useUpdateProfile()
-  const updateFilesMutation = useUpdateProfileFiles()
-  const [isEditing, setIsEditing] = useState(false)
-  const [activeTab, setActiveTab] = useState(isFirstTimeUser ? "settings" : "overview")
+  const { data: session, update: updateSession } = useSession();
+  const { user, sessionUser, isLoading, error, isFirstTimeUser } =
+    useUserData();
+  const updateProfileMutation = useUpdateProfile();
+  const updateFilesMutation = useUpdateProfileFiles();
+  const [isEditing, setIsEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState(
+    isFirstTimeUser ? "settings" : "overview"
+  );
 
   const getDefaultValues = (): ProfileFormData => {
-    const profile = sessionUser?.profile || user?.profile
-    const phone = sessionUser?.phone || user?.phone || ""
+    const profile = sessionUser?.profile || user?.profile;
+    const phone = sessionUser?.phone || user?.phone || "";
 
     if (!profile && !sessionUser) {
       return {
@@ -73,20 +116,20 @@ export default function ProfilePage() {
           wassce_cert: null,
           bece_cert: null,
         },
-      }
+      };
     }
 
     const languages = Array.isArray(profile?.languages)
       ? (profile.languages
           .map((lang: any) => (typeof lang === "string" ? lang : lang.name))
           .filter(Boolean) as string[])
-      : []
+      : [];
 
-    let formattedPhone = phone
+    let formattedPhone = phone;
     if (formattedPhone.startsWith("+233")) {
-      formattedPhone = "0" + formattedPhone.slice(4)
+      formattedPhone = "0" + formattedPhone.slice(4);
     } else if (formattedPhone.startsWith("233")) {
-      formattedPhone = "0" + formattedPhone.slice(3)
+      formattedPhone = "0" + formattedPhone.slice(3);
     }
 
     return {
@@ -107,88 +150,106 @@ export default function ProfilePage() {
         wassce_cert: null,
         bece_cert: null,
       },
-    }
-  }
+    };
+  };
 
   const form = useForm<ProfileFormData>({
     defaultValues: getDefaultValues(),
     mode: "onChange",
-  })
+  });
 
   const handleEdit = () => {
-    setIsEditing(true)
-    setActiveTab("settings")
-    form.reset(getDefaultValues())
-  }
+    setIsEditing(true);
+    setActiveTab("settings");
+    form.reset(getDefaultValues());
+  };
 
   const handleCancel = () => {
-    setIsEditing(false)
-    form.reset(getDefaultValues())
-  }
+    setIsEditing(false);
+    form.reset(getDefaultValues());
+  };
 
   const handleSubmit = async (data: ProfileFormData) => {
     try {
-      const { files, ...profileData } = data
+      const { files, ...profileData } = data;
 
-      console.log("Starting profile update with data:", profileData)
+      console.log("Starting profile update with data:", profileData);
 
       // 1. Update JSON profile
-      const updatedUser = await updateProfileMutation.mutateAsync(profileData)
-      console.log("Profile update response:", updatedUser)
+      const updatedUser = await updateProfileMutation.mutateAsync(profileData);
+      console.log("Profile update response:", updatedUser);
 
       // 2. Update file uploads (if any)
-      const hasFiles = Object.values(files).some((file) => file instanceof File)
+      const hasFiles = Object.values(files).some(
+        (file) => file instanceof File
+      );
       if (hasFiles) {
-        console.log("Updating files...")
-        await updateFilesMutation.mutateAsync(files)
+        console.log("Updating files...");
+        await updateFilesMutation.mutateAsync(files);
       }
 
       // 3. Simple session refresh - let JWT callback handle the update
-      console.log("Triggering session update...")
-      await updateSession()
-      console.log("Session update completed")
+      console.log("Triggering session update...");
+      await updateSession();
+      console.log("Session update completed");
 
       // 4. Reset form with fresh values
-      form.reset(getDefaultValues())
+      form.reset(getDefaultValues());
 
-      setIsEditing(false)
-      setActiveTab("overview")
+      setIsEditing(false);
+      setActiveTab("overview");
 
-      console.log("Profile update process completed successfully")
+      console.log("Profile update process completed successfully");
     } catch (error) {
-      console.error("Profile update error:", error)
+      console.error("Profile update error:", error);
     }
-  }
+  };
 
-  const handleFileSelect = (fieldName: keyof UserProfileFilesUpdate) => (file: File | null) => {
-    form.setValue(`files.${fieldName}`, file)
-  }
+  const handleOverviewPhotoUpload = async (file: File) => {
+    try {
+      await updateFilesMutation.mutateAsync({ picture: file });
+      await updateSession(); 
+    } catch (err) {
+      console.error("Photo upload failed:", err);
+    }
+  };
 
-  const minDate = new Date()
-  minDate.setFullYear(minDate.getFullYear() - 60)
-  const maxDate = new Date()
-  maxDate.setFullYear(maxDate.getFullYear() - 18)
+  const handleFileSelect =
+    (fieldName: keyof UserProfileFilesUpdate) => (file: File | null) => {
+      form.setValue(`files.${fieldName}`, file);
+    };
 
-  const isUpdating = updateProfileMutation.isPending || updateFilesMutation.isPending
+  const minDate = new Date();
+  minDate.setFullYear(minDate.getFullYear() - 60);
+  const maxDate = new Date();
+  maxDate.setFullYear(maxDate.getFullYear() - 18);
 
-  const currentUser = sessionUser || user
-  const profile = sessionUser?.profile || user?.profile
+  const isUpdating =
+    updateProfileMutation.isPending || updateFilesMutation.isPending;
+
+  const currentUser = sessionUser || user;
+  const profile = sessionUser?.profile || user?.profile;
 
   useEffect(() => {
     if (currentUser || session?.user) {
-      const defaultValues = getDefaultValues()
-      form.reset(defaultValues)
+      const defaultValues = getDefaultValues();
+      form.reset(defaultValues);
     }
-  }, [currentUser, user, sessionUser, session?.user])
+  }, [currentUser, user, sessionUser, session?.user]);
 
   useEffect(() => {
     if (isFirstTimeUser) {
-      setActiveTab("settings")
+      setActiveTab("settings");
     }
-  }, [isFirstTimeUser])
+  }, [isFirstTimeUser]);
 
-  const isProfileComplete = profile?.firstname && profile?.lastname && currentUser?.phone && profile?.gps_address
-  const canAccessOtherTabs = isProfileComplete && (session?.user?.verified || !isFirstTimeUser)
+  const isProfileComplete =
+    profile?.firstname &&
+    profile?.lastname &&
+    currentUser?.phone &&
+    profile?.gps_address;
+  const canAccessOtherTabs =
+    isProfileComplete && (session?.user?.verified || !isFirstTimeUser);
 
   if (isLoading) {
     return (
@@ -199,49 +260,64 @@ export default function ProfilePage() {
           <Skeleton className="h-64 w-full" />
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>Failed to load profile data. Please try refreshing the page.</AlertDescription>
+        <AlertDescription>
+          Failed to load profile data. Please try refreshing the page.
+        </AlertDescription>
       </Alert>
-    )
+    );
   }
 
   if (!currentUser && !session?.user) {
     return (
       <Alert>
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>No user data available. Please sign in again.</AlertDescription>
+        <AlertDescription>
+          No user data available. Please sign in again.
+        </AlertDescription>
       </Alert>
-    )
+    );
   }
 
-  const fullName = `${profile?.firstname || ""} ${profile?.lastname || ""}`.trim() || "User"
-  const displayPhone = currentUser?.phone || "Not provided"
-  const displayEmail = currentUser?.email || "Not provided"
-  const displayLocation = profile?.gps_address || "Not provided"
+  const fullName =
+    `${profile?.firstname || ""} ${profile?.lastname || ""}`.trim() || "User";
+  const displayPhone = currentUser?.phone || "Not provided";
+  const displayEmail = currentUser?.email || "Not provided";
+  const displayLocation = profile?.gps_address || "Not provided";
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[{ label: "Dashboard", href: "/dashboard" }, { label: "My Profile" }]} />
+      <Breadcrumb
+        items={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "My Profile" },
+        ]}
+      />
 
       {isFirstTimeUser && activeTab !== "settings" && (
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Please complete your profile in the Settings tab to access other features.
+            Please complete your profile in the Settings tab to access other
+            features.
           </AlertDescription>
         </Alert>
       )}
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold font-montserrat text-foreground">My Profile</h1>
-          <p className="text-muted-foreground">Manage your professional profile and preferences</p>
+          <h1 className="text-3xl font-bold font-montserrat text-foreground">
+            My Profile
+          </h1>
+          <p className="text-muted-foreground">
+            Manage your professional profile and preferences
+          </p>
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline">
@@ -255,7 +331,11 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
         <TabsList>
           <TabsTrigger value="overview" disabled={!canAccessOtherTabs}>
             Overview
@@ -276,7 +356,8 @@ export default function ProfilePage() {
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Please complete your profile in the Settings tab to access other features.
+              Please complete your profile in the Settings tab to access other
+              features.
             </AlertDescription>
           </Alert>
         )}
@@ -287,7 +368,10 @@ export default function ProfilePage() {
               <div className="flex items-start space-x-6">
                 <Avatar className="h-24 w-24">
                   <AvatarImage
-                    src={profile?.picture_url || "/placeholder.svg?height=96&width=96"}
+                    src={
+                      profile?.picture_url ||
+                      "/placeholder.svg?height=96&width=96"
+                    }
                     alt="Profile"
                     style={{ objectFit: "cover" }}
                   />
@@ -317,13 +401,32 @@ export default function ProfilePage() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2 mt-4">
-                    <Button size="sm">
-                      <Upload className="mr-2 h-4 w-4" />
-                      Update Photo
-                    </Button>
+                    <label htmlFor="overview-photo-upload">
+                      <input
+                        type="file"
+                        id="overview-photo-upload"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleOverviewPhotoUpload(file);
+                        }}
+                      />
+                      <Button size="sm" asChild>
+                        <span>
+                          <Upload className="mr-2 h-4 w-4" />
+                          Update Photo
+                        </span>
+                      </Button>
+                    </label>
+
                     {profile?.portfolio_url && (
                       <Button variant="outline" size="sm" asChild>
-                        <a href={profile.portfolio_url} target="_blank" rel="noopener noreferrer">
+                        <a
+                          href={profile.portfolio_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <LinkIcon className="mr-2 h-4 w-4" />
                           Portfolio
                         </a>
@@ -341,8 +444,8 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground leading-relaxed">
-                Welcome to your profile! Complete your information in the Settings tab to help employers learn more
-                about you.
+                Welcome to your profile! Complete your information in the
+                Settings tab to help employers learn more about you.
               </p>
             </CardContent>
           </Card>
@@ -350,7 +453,9 @@ export default function ProfilePage() {
           <div className="grid gap-4 md:grid-cols-3">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Profile Views</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Profile Views
+                </CardTitle>
                 <User className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -361,7 +466,9 @@ export default function ProfilePage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Applications</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Applications
+                </CardTitle>
                 <Briefcase className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -372,7 +479,9 @@ export default function ProfilePage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Response Rate</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Response Rate
+                </CardTitle>
                 <Award className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -394,7 +503,9 @@ export default function ProfilePage() {
 
           <Card>
             <CardContent className="p-6 text-center">
-              <p className="text-muted-foreground">No work experience added yet.</p>
+              <p className="text-muted-foreground">
+                No work experience added yet.
+              </p>
               <Button className="mt-4">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Your First Experience
@@ -414,7 +525,9 @@ export default function ProfilePage() {
 
           <Card>
             <CardContent className="p-6 text-center">
-              <p className="text-muted-foreground">No education history added yet.</p>
+              <p className="text-muted-foreground">
+                No education history added yet.
+              </p>
               <Button className="mt-4">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Your Education
@@ -438,7 +551,9 @@ export default function ProfilePage() {
                 <CardTitle className="text-base">Technical Skills</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground text-center">No technical skills added yet.</p>
+                <p className="text-muted-foreground text-center">
+                  No technical skills added yet.
+                </p>
               </CardContent>
             </Card>
 
@@ -447,7 +562,9 @@ export default function ProfilePage() {
                 <CardTitle className="text-base">Soft Skills</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground text-center">No soft skills added yet.</p>
+                <p className="text-muted-foreground text-center">
+                  No soft skills added yet.
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -472,15 +589,24 @@ export default function ProfilePage() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>Personal Information</CardTitle>
-                  <CardDescription>Update your personal details and contact information</CardDescription>
+                  <CardDescription>
+                    Update your personal details and contact information
+                  </CardDescription>
                 </div>
                 {isEditing && (
                   <div className="flex space-x-2">
-                    <Button variant="outline" onClick={handleCancel} disabled={isUpdating}>
+                    <Button
+                      variant="outline"
+                      onClick={handleCancel}
+                      disabled={isUpdating}
+                    >
                       <X className="mr-2 h-4 w-4" />
                       Cancel
                     </Button>
-                    <Button onClick={form.handleSubmit(handleSubmit)} disabled={!form.formState.isValid || isUpdating}>
+                    <Button
+                      onClick={form.handleSubmit(handleSubmit)}
+                      disabled={!form.formState.isValid || isUpdating}
+                    >
                       <Save className="mr-2 h-4 w-4" />
                       {isUpdating ? "Saving..." : "Save Changes"}
                     </Button>
@@ -490,7 +616,10 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                <form
+                  onSubmit={form.handleSubmit(handleSubmit)}
+                  className="space-y-4"
+                >
                   <div className="grid gap-4 md:grid-cols-2">
                     <FormField
                       control={form.control}
@@ -529,7 +658,8 @@ export default function ProfilePage() {
                         required: "Phone number is required",
                         pattern: {
                           value: /^0\d{9}$/,
-                          message: "Phone number must be 10 digits starting with 0",
+                          message:
+                            "Phone number must be 10 digits starting with 0",
                         },
                       }}
                       render={({ field }) => (
@@ -580,7 +710,10 @@ export default function ProfilePage() {
                           <FormLabel>Notice Period</FormLabel>
                           <FormControl>
                             {isEditing ? (
-                              <Select value={field.value} onValueChange={field.onChange}>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select notice period" />
                                 </SelectTrigger>
@@ -609,7 +742,10 @@ export default function ProfilePage() {
                           <FormLabel>Gender</FormLabel>
                           <FormControl>
                             {isEditing ? (
-                              <Select value={field.value} onValueChange={field.onChange}>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select gender" />
                                 </SelectTrigger>
@@ -662,7 +798,7 @@ export default function ProfilePage() {
                                 value=""
                                 onValueChange={(value) => {
                                   if (value && !field.value.includes(value)) {
-                                    field.onChange([...field.value, value])
+                                    field.onChange([...field.value, value]);
                                   }
                                 }}
                               >
@@ -679,14 +815,20 @@ export default function ProfilePage() {
                               </Select>
                               <div className="flex flex-wrap gap-2">
                                 {field.value.map((lang, index) => (
-                                  <Badge key={index} variant="secondary" className="cursor-pointer">
+                                  <Badge
+                                    key={index}
+                                    variant="secondary"
+                                    className="cursor-pointer"
+                                  >
                                     {lang}
                                     <button
                                       type="button"
                                       className="ml-2 text-xs"
                                       onClick={() => {
-                                        const newLanguages = field.value.filter((_, i) => i !== index)
-                                        field.onChange(newLanguages)
+                                        const newLanguages = field.value.filter(
+                                          (_, i) => i !== index
+                                        );
+                                        field.onChange(newLanguages);
                                       }}
                                     >
                                       ×
@@ -704,7 +846,9 @@ export default function ProfilePage() {
                                   </Badge>
                                 ))
                               ) : (
-                                <span className="text-muted-foreground">No languages specified</span>
+                                <span className="text-muted-foreground">
+                                  No languages specified
+                                </span>
                               )}
                             </div>
                           )}
@@ -721,7 +865,9 @@ export default function ProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Documents</CardTitle>
-              <CardDescription>Upload your certificates and documents</CardDescription>
+              <CardDescription>
+                Upload your certificates and documents
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -770,5 +916,5 @@ export default function ProfilePage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

@@ -8,7 +8,7 @@ export type RequestOptions = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
   data?: any
   includeCredentials?: boolean
-  token?: string // Optional access token for Authorization header
+  token?: string 
 };
 
 export async function apiClient<T>(
@@ -70,10 +70,7 @@ export async function apiFormClient<T>(
   return responseData;
 }
 
-/**
- * Server-side API client that automatically attaches the access token from the session.
- * Supports custom method, body, contentType, revalidateTag, and noCache.
- */
+
 export const fetchApiClient = async <T>({
   url,
   body,
