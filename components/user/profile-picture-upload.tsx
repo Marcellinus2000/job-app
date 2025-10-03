@@ -37,7 +37,7 @@ export function ProfilePictureUpload({ currentPictureUrl, onFileSelect, isEditin
   if (!isEditing) {
     return (
       <Avatar className="h-24 w-24">
-        <AvatarImage src={displayUrl || "/placeholder.svg"} alt="Profile Picture" />
+        <AvatarImage src={displayUrl || "/placeholder.svg"} alt="Profile Picture" style={{ objectFit: "cover" }} />
         <AvatarFallback className="text-lg">
           <User className="h-12 w-12" />
         </AvatarFallback>
@@ -56,7 +56,7 @@ export function ProfilePictureUpload({ currentPictureUrl, onFileSelect, isEditin
       </p>
       <div className="flex items-center space-x-4">
         <Avatar className="h-24 w-24">
-          <AvatarImage src={displayUrl || "/placeholder.svg"} alt="Profile Picture" />
+          <AvatarImage src={displayUrl || "/placeholder.svg"} alt="Profile Picture" style={{ objectFit: "cover" }} />
           <AvatarFallback className="text-lg">
             <User className="h-12 w-12" />
           </AvatarFallback>

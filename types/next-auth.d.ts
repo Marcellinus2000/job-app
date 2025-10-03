@@ -1,59 +1,38 @@
-import type { AuthUser } from "./auth"
-import type { Role } from "./role"
+// next-auth.d.ts
+import type { Role } from "@/types/role"
+import type { UserProfile } from "@/types/user"
 
 declare module "next-auth" {
   interface Session {
     user: {
       id: string
       email: string
-      name: string
       role: Role
       verified: boolean
       phone?: string
-      profile?: {
-        firstname?: string
-        lastname?: string
-        gender?: string
-        date_of_birth?: string
-        picture_url?: string
-        gps_address?: string
-        portfolio_url?: string
-        resume?: string
-        tertiary_cert?: string
-        transcript?: string
-        wassce_cert?: string
-        bece_cert?: string
-        notice_period?: string
-        languages?: string[]
-      }
+      profile?: UserProfile | null
     }
-    accessToken: string
+    accessToken?: string
   }
 
-  interface User extends AuthUser {}
+  interface User {
+  id: string
+  email: string
+  role: Role
+  verified: boolean
+  phone?: string
+  profile?: UserProfile | null
+  token?: string
+  }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
+    id?: string
     role: Role
     verified: boolean
-    accessToken: string
+    accessToken?: string
     phone?: string
-    profile?: {
-      firstname?: string
-      lastname?: string
-      gender?: string
-      date_of_birth?: string
-      picture_url?: string
-      gps_address?: string
-      portfolio_url?: string
-      resume?: string
-      tertiary_cert?: string
-      transcript?: string
-      wassce_cert?: string
-      bece_cert?: string
-      notice_period?: string
-      languages?: string[]
-    }
+    profile?: UserProfile | null  
   }
 }

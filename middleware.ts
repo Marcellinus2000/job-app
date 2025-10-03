@@ -38,20 +38,16 @@ export async function middleware(request: NextRequest) {
       const userRole = token.role as Role
       const isVerified = token.verified as boolean
 
-      console.log("User role:", userRole, "verified:", isVerified)
-
-      // Handle first-time users (not verified)
       if (!isVerified) {
         if (userRole.name === "user") {
-          // Force first-time users to complete profile
           if (pathname !== "/profile" && !pathname.startsWith("/api")) {
-            console.log("[v0] Redirecting first-time user to profile")
+            console.log("Redirecting first-time user to profile")
             return NextResponse.redirect(new URL("/profile", request.url))
           }
         } else if (userRole.name === "hr") {
           // Force first-time HR to complete admin profile
           if (pathname !== "/admin/profile" && !pathname.startsWith("/api")) {
-            console.log("[v0] Redirecting first-time HR to admin profile")
+            console.log("Redirecting first-time HR to admin profile")
             return NextResponse.redirect(new URL("/admin/profile", request.url))
           }
         }
@@ -69,7 +65,7 @@ export async function middleware(request: NextRequest) {
             pathname === "/applications" ||
             pathname === "/profile"
           ) {
-            console.log("[v0] Redirecting admin/hr to admin dashboard")
+            console.log("Redirecting admin/hr to admin dashboard")
             return NextResponse.redirect(new URL("/admin/dashboard", request.url))
           }
         }
@@ -78,7 +74,7 @@ export async function middleware(request: NextRequest) {
         if (userRole.name === "user") {
           // Prevent users from accessing admin pages
           if (pathname.startsWith("/admin")) {
-            console.log("[v0] Redirecting user away from admin area")
+            console.log("Redirecting user away from admin area")
             return NextResponse.redirect(new URL("/dashboard", request.url))
           }
         }
@@ -87,7 +83,7 @@ export async function middleware(request: NextRequest) {
 
     return NextResponse.next()
   } catch (error) {
-    console.error("[v0] Middleware error:", error)
+    console.error("Middleware error:", error)
     return NextResponse.redirect(new URL("/login", request.url))
   }
 }

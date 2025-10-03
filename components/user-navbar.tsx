@@ -41,6 +41,12 @@ export function UserNavbar() {
   const pathname = usePathname()
   const { data: session } = useSession()
 
+  // Get full name from profile
+  const profile = session?.user?.profile
+  const fullName = profile?.firstname && profile?.lastname
+    ? `${profile.firstname} ${profile.lastname}`.trim()
+    : profile?.firstname || session?.user?.email || "User"
+
   const getUserInitials = (name: string | null | undefined) => {
     if (!name) return "U"
     return name
@@ -128,21 +134,21 @@ export function UserNavbar() {
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
                     <AvatarImage
-                      src={session?.user?.profile?.picture_url || "/placeholder.svg?height=32&width=32"}
-                      alt={session?.user?.name || "User"}
+                      src={profile?.picture_url || "/placeholder.svg?height=32&width=32"}
+                      alt={fullName}
                     />
-                    <AvatarFallback>{getUserInitials(session?.user?.name)}</AvatarFallback>
+                    <AvatarFallback>{getUserInitials(fullName)}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{session?.user?.name || "User"}</p>
+                    <p className="text-sm font-medium leading-none">{fullName}</p>
                     <p className="text-xs leading-none text-muted-foreground">{session?.user?.email || "No email"}</p>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
+                      
                 <DropdownMenuItem asChild>
                   <Link href="/profile">
                     <User className="mr-2 h-4 w-4" />
